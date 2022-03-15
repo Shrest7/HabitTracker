@@ -1,0 +1,79 @@
+/****** Object:  Table [dbo].[Date]    Script Date: 11/03/2022 22:27:32 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[Date](
+	[Id] [int] IDENTITY(1,1) NOT NULL,
+	[Date] [date] NULL,
+PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[Habit]    Script Date: 11/03/2022 22:27:32 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[Habit](
+	[Id] [int] IDENTITY(1,1) NOT NULL,
+	[Name] [nvarchar](30) NOT NULL,
+	[Description] [nchar](100) NOT NULL,
+	[Reason] [nvarchar](max) NULL,
+	[Priority] [int] NULL,
+PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY],
+UNIQUE NONCLUSTERED 
+(
+	[Name] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY],
+UNIQUE NONCLUSTERED 
+(
+	[Name] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[DateHabit]    Script Date: 11/03/2022 22:27:32 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[DateHabit](
+	[Id] [int] IDENTITY(1,1) NOT NULL,
+	[DateId] [int] NOT NULL,
+	[HabitId] [int] NOT NULL,
+PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/****** Object:  View [dbo].[ProgressView]    Script Date: 11/03/2022 22:27:32 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE VIEW [dbo].[ProgressView]
+	AS select top 50 Date, Exercise from
+                ( SELECT Name, Date FROM DateHabit dh RIGHT OUTER JOIN Habit h on dh.HabitId =
+                h.Id RIGHT OUTER JOIN Date d on dh.DateId = d.Id ) d pivot ( COUNT(Name) for Name
+                in (Exercise) ) piv;
+GO
+ALTER TABLE [dbo].[Habit] ADD  DEFAULT ((999)) FOR [Reason]
+GO
+ALTER TABLE [dbo].[DateHabit]  WITH CHECK ADD  CONSTRAINT [DateFK] FOREIGN KEY([DateId])
+REFERENCES [dbo].[Date] ([Id])
+GO
+ALTER TABLE [dbo].[DateHabit] CHECK CONSTRAINT [DateFK]
+GO
+ALTER TABLE [dbo].[DateHabit]  WITH CHECK ADD  CONSTRAINT [HabitFK] FOREIGN KEY([HabitId])
+REFERENCES [dbo].[Habit] ([Id])
+GO
+ALTER TABLE [dbo].[DateHabit] CHECK CONSTRAINT [HabitFK]
+GO
+USE [master]
+GO
