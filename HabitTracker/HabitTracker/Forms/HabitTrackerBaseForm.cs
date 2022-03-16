@@ -28,7 +28,7 @@ namespace HabitTracker
             {
                 if (!_dbAccess.CheckIfAnyHabitExists())
                 {
-                    HabitSeeder.Seed();
+                    Seeder.Seed();
                     ReloadListBox();
                 }
 
@@ -57,12 +57,12 @@ namespace HabitTracker
         public HabitTrackerBaseForm()
         {
             InitializeComponent();
-            HabitSeeder.Seed();
+            Seeder.Seed();
 
             DateTime latestDateInDB = _dbAccess.GetLatestDateInDB();
 
-            if (DateTime.Compare(latestDateInDB, DateTime.Now) < 0)
-                _dbAccess.FillDates(latestDateInDB);
+            if ((DateTime.UtcNow - latestDateInDB).TotalDays < 30)
+                _dbAccess.GenerateNextDates(latestDateInDB, DateTime.UtcNow.AddDays(14));
         }
 
         private void BtnAddHabit_Click(object sender, EventArgs e)

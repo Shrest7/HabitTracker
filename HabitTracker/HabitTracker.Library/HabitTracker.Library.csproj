@@ -183,7 +183,7 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <DesignTime>True</DesignTime>
     </Compile>
-    <Compile Include="DataAccess\HabitSeeder.cs" />
+    <Compile Include="DataAccess\Seeder.cs" />
     <Compile Include="DataAccess\SqlAccess.cs" />
     <Compile Include="Enums\AddUpdateHabitOperation.cs" />
     <Compile Include="Enums\CreateUpdateHabitMessage.cs" />

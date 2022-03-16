@@ -83,19 +83,23 @@
             // 
             // descriptionTxt
             // 
+            this.descriptionTxt.BackColor = System.Drawing.Color.White;
             this.descriptionTxt.Font = new System.Drawing.Font("Microsoft Sans Serif", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
             this.descriptionTxt.Location = new System.Drawing.Point(248, 38);
             this.descriptionTxt.Multiline = true;
             this.descriptionTxt.Name = "descriptionTxt";
+            this.descriptionTxt.ReadOnly = true;
             this.descriptionTxt.Size = new System.Drawing.Size(174, 220);
             this.descriptionTxt.TabIndex = 5;
             // 
             // reasonTxt
             // 
+            this.reasonTxt.BackColor = System.Drawing.Color.White;
             this.reasonTxt.Font = new System.Drawing.Font("Microsoft Sans Serif", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
             this.reasonTxt.Location = new System.Drawing.Point(455, 38);
             this.reasonTxt.Multiline = true;
             this.reasonTxt.Name = "reasonTxt";
+            this.reasonTxt.ReadOnly = true;
             this.reasonTxt.Size = new System.Drawing.Size(174, 220);
             this.reasonTxt.TabIndex = 6;
             // 

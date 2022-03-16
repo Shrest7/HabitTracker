@@ -10,15 +10,31 @@ using System.Threading.Tasks;
 
 namespace HabitTracker
 {
-    public static class HabitSeeder
+    public static class Seeder
     {
         private static readonly SqlAccess _dbAccess = new SqlAccess();
 
         public static void Seed()
         {
-            bool habitExists = _dbAccess.CheckIfAnyHabitExists();
+            SeedHabits();
+            SeedDates();
+        }
 
-            if (habitExists == true)
+        private static void SeedDates()
+        {
+            if (_dbAccess.CheckIfAnyDateExists())
+            {
+                return;
+            }
+            else
+            {
+                _dbAccess.GenerateNextDates(DateTime.UtcNow.AddDays(-100), DateTime.UtcNow.AddDays(100));
+            }
+        }
+
+        private static void SeedHabits()
+        {
+            if (_dbAccess.CheckIfAnyHabitExists())
             {
                 return;
             }

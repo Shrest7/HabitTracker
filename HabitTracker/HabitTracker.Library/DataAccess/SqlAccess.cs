@@ -26,29 +26,6 @@ namespace HabitTracker.Library.DataAccess
         private readonly int maxDescriptionReasonLength = int.Parse(ConfigurationManager
             .AppSettings["MaxReasonDescriptionLength"]);
 
-        public string GetNameOfTheLongestHabit()
-            => _dbContext.Habit
-            .FirstOrDefault(x => x.Name.Length == _dbContext.Habit.Max(y => y.Name.Length))
-            .Name;
-
-        public Date GetDate(DateTime date)
-            => _dbContext.Date.SingleOrDefault(x => x.Date1 == date);
-
-        public DateTime GetEarliestDateInDB()
-            => (DateTime)_dbContext.Date.OrderBy(x => x.Date1).First().Date1;
-
-        public DateTime GetLatestDateInDB()
-            => (DateTime)_dbContext.Date.OrderByDescending(x => x.Date1).First().Date1;
-
-        public List<string> GetHabitNames()
-            => _dbContext.Habit.Select(x => x.Name).ToList();
-
-        public void RemoveAllMarksOfHabitCompletion()
-        {
-            _dbContext.Database.ExecuteSqlRaw("DELETE DateHabit");
-            _dbContext.SaveChanges();
-        }
-
         public DataTable GetDataForDGV(string habitNames,
             int offset, int amountOfRecordsShown)
         {
@@ -72,6 +49,35 @@ namespace HabitTracker.Library.DataAccess
                 dataAdapter.Fill(dataTable);
                 return dataTable;
             }
+        }
+
+        public void FillTableWithHabitNames(DataTable table)
+        {
+            SqlDataAdapter sqlDataAdapter = new SqlDataAdapter("SELECT * FROM Habit " +
+                "ORDER BY Priority, Name ASC", ConnectionString);
+            sqlDataAdapter.Fill(table);
+        }
+        public string GetNameOfTheLongestHabit()
+            => _dbContext.Habit
+            .FirstOrDefault(x => x.Name.Length == _dbContext.Habit.Max(y => y.Name.Length))
+            .Name;
+
+        public Date GetDate(DateTime date)
+            => _dbContext.Date.SingleOrDefault(x => x.Date1 == date);
+
+        public DateTime GetEarliestDateInDB()
+            => (DateTime)_dbContext.Date.OrderBy(x => x.Date1).First().Date1;
+
+        public DateTime GetLatestDateInDB()
+            => (DateTime)_dbContext.Date.OrderByDescending(x => x.Date1).First().Date1;
+
+        public List<string> GetHabitNames()
+            => _dbContext.Habit.Select(x => x.Name).ToList();
+
+        public void RemoveAllMarksOfHabitCompletion()
+        {
+            _dbContext.Database.ExecuteSqlRaw("DELETE DateHabit");
+            _dbContext.SaveChanges();
         }
 
         public void RemoveMarkOfHabitCompletion(int dateId, int habitId)
@@ -100,26 +106,18 @@ namespace HabitTracker.Library.DataAccess
             }
         }
 
-        public void FillDates(DateTime latestDate)
+        public void GenerateNextDates(DateTime startDate, DateTime endDate)
         {
-            using (SqlConnection sqlConn = new SqlConnection(ConnectionString))
+            var amountOfDates = (endDate - startDate).TotalDays;
+            for (int i = 1; i<= amountOfDates; i++)
             {
-                sqlConn.Open();
-                for (int i = 0; i < 14; i++)
+                Date date = new Date()
                 {
-                    string query = "SELECT DATEADD(day, 1, @date)";
-                    SqlCommand sqlCommand = new SqlCommand(query, sqlConn);
-                    sqlCommand.Parameters.AddWithValue("@date", latestDate);
-                    SqlDataReader sqlDataReader = sqlCommand.ExecuteReader();
-                    while (sqlDataReader.Read())
-                    {
-                        latestDate = (DateTime)sqlDataReader[0];
-                    }
-                    query = "INSERT INTO Date(Date) VALUES(@date)";
-                    sqlCommand.CommandText = query;
-                    sqlCommand.ExecuteNonQuery();
-                }
+                    Date1 = startDate.Date.AddDays(i)
+                };
+                _dbContext.Date.Add(date);
             }
+            _dbContext.SaveChanges();
         }
 
         public Habit GetHabitById(int id)
@@ -181,78 +179,34 @@ namespace HabitTracker.Library.DataAccess
                 return CreateUpdateHabitMessage.ReasonTooLong;
             }
 
-            using (SqlConnection sqlConnection = new SqlConnection(ConnectionString))
+            var habit = GetHabitByName(name);
+            if (habit != null)
             {
-                sqlConnection.Open();
-                string query = "INSERT INTO Habit(Name, Description, Reason) VALUES (@habitName, @habitDescription, @habitReason)";
-                SqlCommand sqlCommand = new SqlCommand(query, sqlConnection);
-                sqlCommand.Parameters.AddWithValue("@habitName", name);
-                sqlCommand.Parameters.AddWithValue("@habitDescription", description);
-                sqlCommand.Parameters.AddWithValue("@habitReason", reason);
-
-                try
-                {
-                    sqlCommand.ExecuteNonQuery();
-                    return CreateUpdateHabitMessage.OK;
-                }
-                catch (SqlException ex)
-                {
-                    if (ex.Number == 2627) //Name not unique error
-                    {
-                        return CreateUpdateHabitMessage.NameAlreadyExists;
-                    }
-
-                    throw;
-                }
+                return CreateUpdateHabitMessage.NameAlreadyExists;
             }
+
+            habit = new Habit()
+            {
+                Name = name,
+                Description = description,
+                Reason = reason
+            };
+
+            _dbContext.Add(habit);
+            _dbContext.SaveChanges();
+            return CreateUpdateHabitMessage.OK;
         }
 
         public bool CheckIfAnyHabitExists()
-        {
-            bool habitsExist;
-            using (SqlConnection sqlConnection = new SqlConnection(ConnectionString))
-            {
-                sqlConnection.Open();
-                string query = "SELECT * FROM Habit";
-                SqlCommand sqlCommand = new SqlCommand(query, sqlConnection);
-                SqlDataReader reader = sqlCommand.ExecuteReader();
+            => _dbContext.Habit.Any();
 
-                if (reader.HasRows)
-                {
-                    habitsExist = true;
-                }
-                else
-                {
-                    habitsExist = false;
-                }
-            }
-            return habitsExist;
-        }
+        public bool CheckIfAnyDateExists()
+            => _dbContext.Date.Any();
 
         public void SeedBaseHabits(List<Habit> habits)
         {
-            using (SqlConnection sqlConnection = new SqlConnection(ConnectionString))
-            {
-                sqlConnection.Open();
-                string query = "INSERT INTO Habit(Name, Description, Reason)" +
-                    " VALUES (@habitName, @habitDescription, @habitReason)";
-
-                foreach (var habit in habits)
-                {
-                    SqlCommand sqlCommand = new SqlCommand(query, sqlConnection);
-                    sqlCommand.Parameters.AddWithValue("@habitName", habit.Name);
-                    sqlCommand.Parameters.AddWithValue("@habitDescription", habit.Description);
-                    sqlCommand.Parameters.AddWithValue("@habitReason", habit.Reason);
-                    sqlCommand.ExecuteNonQuery();
-                }
-            }
-        }
-
-        public void FillTableWithHabitNames(DataTable table)
-        {
-            SqlDataAdapter sqlDataAdapter = new SqlDataAdapter("SELECT * FROM Habit " +
-                "ORDER BY Priority, Name ASC", ConnectionString);
-            sqlDataAdapter.Fill(table);
+            _dbContext.Habit.AddRange(habits);
+            _dbContext.SaveChanges();
         }
     }
 }
