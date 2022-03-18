@@ -11,13 +11,14 @@ using System.Data.SqlClient;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 
 namespace HabitTracker.Library.DataAccess
 {
     public class SqlAccess
     {
-        HabitTrackerDBEFCoreContext _dbContext = new HabitTrackerDBEFCoreContext();
-
+        private readonly HabitTrackerDBEFCoreContext _dbContext =
+            new HabitTrackerDBEFCoreContext();
         private readonly string ConnectionString =
             ConfigurationManager.ConnectionStrings["ConnString"]
             .ConnectionString;
@@ -57,19 +58,21 @@ namespace HabitTracker.Library.DataAccess
                 "ORDER BY Priority, Name ASC", ConnectionString);
             sqlDataAdapter.Fill(table);
         }
-        public string GetNameOfTheLongestHabit()
+
+        public Habit GetHabitWithTheLongestName()
             => _dbContext.Habit
-            .FirstOrDefault(x => x.Name.Length == _dbContext.Habit.Max(y => y.Name.Length))
-            .Name;
+            .FirstOrDefault(x => x.Name.Length == _dbContext.Habit.Max(y => y.Name.Length));
 
-        public Date GetDate(DateTime date)
-            => _dbContext.Date.SingleOrDefault(x => x.Date1 == date);
+        public DateDBTable GetDate(DateTime date)
+            => _dbContext.Date.SingleOrDefault(x => x.Date == date);
 
-        public DateTime GetEarliestDateInDB()
-            => (DateTime)_dbContext.Date.OrderBy(x => x.Date1).First().Date1;
+        public DateDBTable GetEarliestDateInDB()
+            => _dbContext.Date.OrderBy(x => x.Date)
+                .FirstOrDefault();
 
-        public DateTime GetLatestDateInDB()
-            => (DateTime)_dbContext.Date.OrderByDescending(x => x.Date1).First().Date1;
+        public DateDBTable GetLatestDateInDB()
+            => _dbContext.Date.OrderByDescending(x => x.Date)
+                .FirstOrDefault();
 
         public List<string> GetHabitNames()
             => _dbContext.Habit.Select(x => x.Name).ToList();
@@ -78,6 +81,22 @@ namespace HabitTracker.Library.DataAccess
         {
             _dbContext.Database.ExecuteSqlRaw("DELETE DateHabit");
             _dbContext.SaveChanges();
+        }
+
+        public (int, DateTime) FindStreak(int habitId, DateTime date)
+        {
+            int streakLength = 0;
+            while(true)
+            {
+                var dateId = _dbContext.Date.SingleOrDefault(x => x.Date == date).Id;
+                var dateHabit = _dbContext.DateHabit
+                    .SingleOrDefault(x => x.HabitId == habitId && x.Date.Id == dateId);
+                if (dateHabit is null)
+                    break;
+                date = date.AddDays(-1);
+                streakLength++;
+            }
+            return (streakLength, date.AddDays(1));
         }
 
         public void RemoveMarkOfHabitCompletion(int dateId, int habitId)
@@ -90,11 +109,11 @@ namespace HabitTracker.Library.DataAccess
 
         public void MarkHabitCompletion(int dateId, int habitId)
         {
-            bool done = Convert.ToBoolean(_dbContext.DateHabit
+            bool alreadyMarked = Convert.ToBoolean(_dbContext.DateHabit
                 .Where(x => x.DateId == dateId && x.HabitId == habitId)
                 .Count());
 
-            if (!done)
+            if (!alreadyMarked)
             {
                 DateHabit dateHabit = new DateHabit()
                 {
@@ -106,14 +125,14 @@ namespace HabitTracker.Library.DataAccess
             }
         }
 
-        public void GenerateNextDates(DateTime startDate, DateTime endDate)
+        public void GenerateDates(DateTime startDate, DateTime endDate)
         {
             var amountOfDates = (endDate - startDate).TotalDays;
             for (int i = 1; i<= amountOfDates; i++)
             {
-                Date date = new Date()
+                DateDBTable date = new DateDBTable()
                 {
-                    Date1 = startDate.Date.AddDays(i)
+                    Date = startDate.Date.AddDays(i)
                 };
                 _dbContext.Date.Add(date);
             }
@@ -121,9 +140,9 @@ namespace HabitTracker.Library.DataAccess
         }
 
         public Habit GetHabitById(int id)
-            => _dbContext.Habit.AsNoTracking().SingleOrDefault(x => x.Id == id);
+            => _dbContext.Habit.SingleOrDefault(x => x.Id == id);
         public Habit GetHabitByName(string name)
-            => _dbContext.Habit.AsNoTracking().SingleOrDefault(x => x.Name == name);
+            => _dbContext.Habit.SingleOrDefault(x => x.Name == name);
 
         public void RemoveHabit(int id)
         {
@@ -134,56 +153,42 @@ namespace HabitTracker.Library.DataAccess
             _dbContext.SaveChanges();
         }
 
-        public CreateUpdateHabitMessage UpdateHabit(string currentName, string newName,
+        public CreateUpdateHabitMessage UpdateHabit(string name,
             string description, string reason)
-        {
-            if (newName.Length > maxHabitNameLength)
-            {
-                return CreateUpdateHabitMessage.NameTooLong;
-            }
+        { 
+           
             if (description.Length > maxDescriptionReasonLength)
-            {
                 return CreateUpdateHabitMessage.DescriptionTooLong;
-            }
-            if (reason.Length > maxDescriptionReasonLength)
-            {
-                return CreateUpdateHabitMessage.ReasonTooLong;
-            }
 
-            var id = GetHabitByName(currentName).Id;
-            var habit = new Habit()
-            {
-                Id = id,
-                Name = newName,
-                Description = description,
-                Reason = reason
-            };
+            if (reason.Length > maxDescriptionReasonLength)
+                return CreateUpdateHabitMessage.ReasonTooLong;
+
+            var habit = GetHabitByName(name);
+
+            habit.Description = description;
+            habit.Reason = reason;
 
             _dbContext.Habit.Update(habit);
             _dbContext.SaveChanges();
             return CreateUpdateHabitMessage.OK;
         }
 
-        public CreateUpdateHabitMessage CreateHabit(string name, string description, string reason)
+        public CreateUpdateHabitMessage CreateHabit(string name,
+            string description, string reason)
         {
             if (name.Length > maxHabitNameLength)
-            {
                 return CreateUpdateHabitMessage.NameTooLong;
-            }
+
             if (description.Length > maxDescriptionReasonLength)
-            {
                 return CreateUpdateHabitMessage.DescriptionTooLong;
-            }
+
             if (reason.Length > maxDescriptionReasonLength)
-            {
                 return CreateUpdateHabitMessage.ReasonTooLong;
-            }
 
             var habit = GetHabitByName(name);
+
             if (habit != null)
-            {
                 return CreateUpdateHabitMessage.NameAlreadyExists;
-            }
 
             habit = new Habit()
             {

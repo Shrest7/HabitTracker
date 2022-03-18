@@ -13,7 +13,7 @@ namespace HabitTracker.Library.Models.db
         public int DateId { get; set; }
         public int HabitId { get; set; }
 
-        public virtual Date Date { get; set; }
+        public virtual DateDBTable Date { get; set; }
         public virtual Habit Habit { get; set; }
     }
 }

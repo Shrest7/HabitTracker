@@ -33,6 +33,7 @@
             this.dgv = new System.Windows.Forms.DataGridView();
             this.removeAllBtn = new System.Windows.Forms.Button();
             this.btnGoBackToCurrentDate = new System.Windows.Forms.Button();
+            this.btnChangeCellColor = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.dgv)).BeginInit();
             this.SuspendLayout();
             // 
@@ -92,16 +93,28 @@
             this.btnGoBackToCurrentDate.UseVisualStyleBackColor = true;
             this.btnGoBackToCurrentDate.Click += new System.EventHandler(this.BtnGoBackToCurrentDate_Click);
             // 
+            // btnChangeCellColor
+            // 
+            this.btnChangeCellColor.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnChangeCellColor.Location = new System.Drawing.Point(503, 0);
+            this.btnChangeCellColor.Name = "btnChangeCellColor";
+            this.btnChangeCellColor.Size = new System.Drawing.Size(75, 63);
+            this.btnChangeCellColor.TabIndex = 7;
+            this.btnChangeCellColor.Text = "Change marked cell\'s color";
+            this.btnChangeCellColor.UseVisualStyleBackColor = true;
+            this.btnChangeCellColor.Click += new System.EventHandler(this.BtnChangeCellColor_Click);
+            // 
             // ProgressForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.ClientSize = new System.Drawing.Size(752, 646);
+            this.Controls.Add(this.btnChangeCellColor);
             this.Controls.Add(this.btnGoBackToCurrentDate);
             this.Controls.Add(this.removeAllBtn);
             this.Controls.Add(this.dgv);
-            //this.MaximizeBox = false;
+            this.MaximizeBox = false;
             this.Name = "ProgressForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "ProgressForm";
@@ -115,5 +128,6 @@
         private System.Windows.Forms.DataGridView dgv;
         private System.Windows.Forms.Button removeAllBtn;
         private System.Windows.Forms.Button btnGoBackToCurrentDate;
+        private System.Windows.Forms.Button btnChangeCellColor;
     }
 }

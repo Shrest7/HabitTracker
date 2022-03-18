@@ -23,13 +23,9 @@ namespace HabitTracker
         private static void SeedDates()
         {
             if (_dbAccess.CheckIfAnyDateExists())
-            {
                 return;
-            }
             else
-            {
-                _dbAccess.GenerateNextDates(DateTime.UtcNow.AddDays(-100), DateTime.UtcNow.AddDays(100));
-            }
+                _dbAccess.GenerateDates(DateTime.UtcNow.AddDays(-100), DateTime.UtcNow.AddDays(100));
         }
 
         private static void SeedHabits()

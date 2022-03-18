@@ -20,10 +20,9 @@ namespace HabitTracker.Library.Models.db
         {
         }
 
-        public virtual DbSet<Date> Date { get; set; }
+        public virtual DbSet<DateDBTable> Date { get; set; }
         public virtual DbSet<DateHabit> DateHabit { get; set; }
         public virtual DbSet<Habit> Habit { get; set; }
-        public virtual DbSet<ProgressView> ProgressView { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -35,9 +34,9 @@ namespace HabitTracker.Library.Models.db
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<Date>(entity =>
+            modelBuilder.Entity<DateDBTable>(entity =>
             {
-                entity.Property(e => e.Date1)
+                entity.Property(e => e.Date)
                     .HasColumnName("Date")
                     .HasColumnType("date");
             });
@@ -64,24 +63,14 @@ namespace HabitTracker.Library.Models.db
                     .IsUnique();
 
                 entity.Property(e => e.Description)
-                    .IsRequired()
-                    .HasMaxLength(100)
-                    .IsFixedLength();
+                    .HasMaxLength(100);
+
+                entity.Property(e => e.Reason)
+                    .HasMaxLength(100);
 
                 entity.Property(e => e.Name)
                     .IsRequired()
                     .HasMaxLength(30);
-
-                entity.Property(e => e.Reason).HasDefaultValueSql("((999))");
-            });
-
-            modelBuilder.Entity<ProgressView>(entity =>
-            {
-                entity.HasNoKey();
-
-                entity.ToView("ProgressView");
-
-                entity.Property(e => e.Date).HasColumnType("date");
             });
 
             OnModelCreatingPartial(modelBuilder);

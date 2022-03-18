@@ -39,7 +39,7 @@ namespace HabitTracker
         {
             if (string.IsNullOrWhiteSpace(nameTxt.Text))
             {
-                MessageBox.Show("Type a valid habit name!");
+                MessageBox.Show("Type a valid habit name.");
                 return;
             }
 
@@ -52,7 +52,7 @@ namespace HabitTracker
                         reasonTxt.Text);
                     break;
                 case AddUpdateHabitOperation.Update:
-                    message = _dbAccess.UpdateHabit(_currentName, nameTxt.Text, descriptionTxt.Text,
+                    message = _dbAccess.UpdateHabit(nameTxt.Text, descriptionTxt.Text,
                     reasonTxt.Text);
                     break;
             }
@@ -62,18 +62,9 @@ namespace HabitTracker
                 case CreateUpdateHabitMessage.OK:
                     _baseForm.ReloadListBox();
                     break;
-
                 case CreateUpdateHabitMessage.NameAlreadyExists:
-                    DialogResult dialogResult = MessageBox.Show("Habit with such name already exists." +
-                        " Would you like to update it?", "Attention", MessageBoxButtons.YesNo);
-
-                    if (dialogResult == DialogResult.Yes)
-                    {
-                        _dbAccess.UpdateHabit(nameTxt.Text, nameTxt.Text, descriptionTxt.Text,
-                            reasonTxt.Text);
-                    }
+                    MessageBox.Show($"Habit with name \'{nameTxt.Text}\' already exists.");
                     break;
-
                 case CreateUpdateHabitMessage.NameTooLong:
                     MessageBox.Show($"Name is too long. Maximum length of habit's name is" +
                         $" {ConfigurationManager.AppSettings["MaxNameLength"]}.");
@@ -85,6 +76,9 @@ namespace HabitTracker
                 case CreateUpdateHabitMessage.ReasonTooLong:
                     MessageBox.Show($"Reason is too long. Maximum length of habit's reason is" +
                         $" {ConfigurationManager.AppSettings["MaxReasonDescriptionLength"]}.");
+                    break;
+                default:
+                    MessageBox.Show("Something went wrong.");
                     break;
             }
         }

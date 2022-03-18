@@ -39,6 +39,7 @@
             // 
             // nameTxt
             // 
+            this.nameTxt.BackColor = System.Drawing.Color.White;
             this.nameTxt.Location = new System.Drawing.Point(12, 37);
             this.nameTxt.Name = "nameTxt";
             this.nameTxt.Size = new System.Drawing.Size(207, 20);
@@ -101,10 +102,7 @@
             this.reasonTxt.Size = new System.Drawing.Size(207, 98);
             this.reasonTxt.TabIndex = 5;
             // 
-            //
-            //
-            //
-            // Form
+            // AddUpdateHabitForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
@@ -117,7 +115,7 @@
             this.Controls.Add(this.label1);
             this.Controls.Add(this.nameTxt);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.Fixed3D;
-            this.Name = "AddHabitForm";
+            this.Name = "AddUpdateHabitForm";
             this.Text = "Add Habit";
             this.ResumeLayout(false);
             this.PerformLayout();

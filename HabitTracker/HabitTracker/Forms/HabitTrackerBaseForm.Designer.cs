@@ -159,9 +159,10 @@
             this.Controls.Add(this.label1);
             this.Controls.Add(this.namesListBox);
             this.Controls.Add(this.btnAddHabit);
+            this.MaximizeBox = false;
             this.Name = "HabitTrackerBaseForm";
             this.Text = "HabitTracker";
-            this.Load += new System.EventHandler(this.Form1_Load);
+            this.Load += new System.EventHandler(this.HabitTrackerBaseForm_Load);
             this.ResumeLayout(false);
             this.PerformLayout();
 

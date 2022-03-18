@@ -1,10 +1,13 @@
 ﻿using HabitTracker.Library.DataAccess;
+using HabitTracker.Library.Models.db;
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 using System.Drawing;
+using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows.Controls;
 using System.Windows.Forms;
 
@@ -12,11 +15,12 @@ namespace HabitTracker
 {
     public partial class ProgressForm : Form
     {
+        private readonly string _colorPath;
+        private Color _markedCellColor;
         private const int _defaultOffset = 0;
         private const int _amountOfRecordsShown = 25;
         private readonly SqlAccess _dbAccess = new SqlAccess();
         private readonly int _maxOffsetPast;
-        private readonly Color _markedCellColor = Color.Green;
         private readonly DateTime _currentDate = DateTime.Now.Date;
         private readonly DateTime _earliestDateInDB;
 
@@ -48,11 +52,14 @@ namespace HabitTracker
         {
             InitializeComponent();
 
-            dgv.ClearSelection();
-            StartPosition = FormStartPosition.CenterScreen;
-            MaximizeBox = false;
-            _earliestDateInDB = _dbAccess.GetEarliestDateInDB();
+            _colorPath = Directory.GetParent(Environment.CurrentDirectory.ToString())
+                .Parent.Parent.FullName;
+            _colorPath = Path.Combine(_colorPath, @"HabitTracker.Library\DataAccess\CellColor.txt");
+
+            _markedCellColor = GetColorFromFile();
+            _earliestDateInDB = _dbAccess.GetEarliestDateInDB().Date.GetValueOrDefault();
             _maxOffsetPast = (int)(_currentDate - _earliestDateInDB).TotalDays - 7;
+            dgv.ClearSelection();
             dgv.Dock = DockStyle.Bottom;
             dgv.Height = Height - 105;
             dgv.AutoGenerateColumns = true;
@@ -90,8 +97,8 @@ namespace HabitTracker
 
         private void Dgv_VisibleChanged(object sender, EventArgs e)
         {
-            string nameOfTheLongestHabit = _dbAccess.GetNameOfTheLongestHabit();
-            int widthOfTheWidestHeader = GetWidthOfWidestColumn(nameOfTheLongestHabit);
+            var habit = _dbAccess.GetHabitWithTheLongestName();
+            int widthOfTheWidestHeader = GetWidthOfWidestColumn(habit.Name);
             AdjustAllColumns(widthOfTheWidestHeader);
         }
 
@@ -136,9 +143,7 @@ namespace HabitTracker
             foreach (DataGridViewRow Myrow in dgv.Rows)
             {
                 if (DateTime.Compare((DateTime)Myrow.Cells[0].Value, DateTime.Today.Date) == 0)
-                {
                     todaysRowFound = 1;
-                }
 
                 for (int i = 1; i < Myrow.Cells.Count; i++)
                 {
@@ -207,11 +212,11 @@ namespace HabitTracker
         {
             if (e.Delta > 0)
             {
-                SwipeUp();
+                ScrollUp();
             }
             else if (e.Delta < 0 && UserOffset <= _maxOffsetPast)
             {
-                SwipeDown();
+                ScrollDown();
             }
         }
 
@@ -227,13 +232,9 @@ namespace HabitTracker
             Color backColor = dgv.Rows[e.RowIndex].Cells[e.ColumnIndex].Style.BackColor;
 
             if (backColor == _markedCellColor)
-            {
-                _dbAccess.RemoveMarkOfHabitCompletion(dateId, habitId);
-            }
+                 _dbAccess.RemoveMarkOfHabitCompletion(dateId, habitId);
             else
-            {
                 _dbAccess.MarkHabitCompletion(dateId, habitId);
-            }
 
             int scrollingRowIndex = dgv.FirstDisplayedScrollingRowIndex;
             FillDGV(UserOffset);
@@ -245,13 +246,13 @@ namespace HabitTracker
             e.Column.SortMode = DataGridViewColumnSortMode.NotSortable;
         }
 
-        private void SwipeUp()
+        private void ScrollUp()
         {
             UserOffset -= 7;
             FillDGV(UserOffset);
         }
 
-        private void SwipeDown()
+        private void ScrollDown()
         {
             UserOffset += 7;
             FillDGV(UserOffset);
@@ -274,6 +275,23 @@ namespace HabitTracker
         {
             FillDGV(_defaultOffset);
             UserOffset = _defaultOffset;
+        }
+
+        private void BtnChangeCellColor_Click(object sender, EventArgs e)
+        {
+            ColorDialog colorDialog = new ColorDialog();
+            colorDialog.ShowDialog();
+            _markedCellColor = colorDialog.Color;
+            File.WriteAllText(_colorPath, string.Empty);
+            File.WriteAllText(_colorPath, _markedCellColor.ToArgb().ToString());
+
+            FillDGV(UserOffset);
+        }
+
+        private Color GetColorFromFile()
+        {
+            int argb = Convert.ToInt32(File.ReadAllText(_colorPath));
+            return Color.FromArgb(argb);
         }
     }
 }
