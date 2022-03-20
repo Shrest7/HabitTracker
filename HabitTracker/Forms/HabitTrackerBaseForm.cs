@@ -38,7 +38,7 @@ namespace HabitTracker
             }
         }
 
-        public AddUpdateHabitForm GetAddHabitForm(string name, string description,
+        public AddUpdateHabitForm GetAddUpdateHabitForm(string name, string description,
             string reason, AddUpdateHabitOperation operation)
         {
             if (_addUpdateHabitFormInst == null || _addUpdateHabitFormInst.IsDisposed)
@@ -68,7 +68,7 @@ namespace HabitTracker
         private void BtnAddHabit_Click(object sender, EventArgs e)
         {
             if(_addUpdateHabitFormInst == null || _addUpdateHabitFormInst.IsDisposed)
-                _addUpdateHabitFormInst = GetAddHabitForm(null, null, null,
+                _addUpdateHabitFormInst = GetAddUpdateHabitForm(null, null, null,
                     AddUpdateHabitOperation.Add);
 
             if(!_addUpdateHabitFormInst.Visible)
@@ -111,8 +111,8 @@ namespace HabitTracker
                 oldIndex - 1 :
                 oldIndex;
 
-            if(_progressFormInst != null) 
-                _progressFormInst.FillDGV(_progressFormInst.UserOffset);
+            if(_progressFormInst != null && !_progressFormInst.IsDisposed) 
+                _progressFormInst.FillDataGridView(_progressFormInst.UserOffset);
         }
 
         private void NamesListBox_SelectedIndexChanged(object sender, EventArgs e)
@@ -148,12 +148,19 @@ namespace HabitTracker
             string description = descriptionTxt.Text;
             string reason = reasonTxt.Text;
 
-            var addUpdateHabitForm = GetAddHabitForm(name, description, reason,
-                AddUpdateHabitOperation.Update);
-            addUpdateHabitForm.nameTxt.Enabled = false;
-            addUpdateHabitForm.Text = "Update Habit";
-            addUpdateHabitForm.btnConfirmHabit.Text = "Update!";
-            addUpdateHabitForm.Show();
+            if(_addUpdateHabitFormInst == null || _addUpdateHabitFormInst.IsDisposed)
+            {
+                _addUpdateHabitFormInst = GetAddUpdateHabitForm(name, description, reason,
+                    AddUpdateHabitOperation.Update);
+                _addUpdateHabitFormInst.nameTxt.Enabled = false;
+                _addUpdateHabitFormInst.Text = "Update Habit";
+                _addUpdateHabitFormInst.btnConfirmHabit.Text = "Update!";
+                _addUpdateHabitFormInst.Show();
+            }
+            else
+            {
+                MessageBox.Show("Please close form used to add habit first.");
+            }
         }
     }
 }

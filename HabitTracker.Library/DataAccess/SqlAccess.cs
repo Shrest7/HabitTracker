@@ -27,15 +27,15 @@ namespace HabitTracker.Library.DataAccess
             .AppSettings["MaxReasonDescriptionLength"]);
 
         public DataTable GetDataForDGV(string habitNames,
-            int offset, int amountOfRecordsShown)
+            int offset, int numberOfDates, int numberOfDatesFromCurrent)
         {
             // This is prone to SQL injection, unfortunately with the approach I took
             // (not the best) it kinda has to be done this way and I couldn't find a way to parametrize it
-            string query = $"SELECT * FROM (select top (@amountOfRecords) Date, { habitNames } " +
+            string query = $"SELECT * FROM (select top (@numberOfDates) Date, { habitNames } " +
                 $"FROM ( SELECT Name, Date FROM DateHabit dh RIGHT OUTER JOIN Habit h on dh.HabitId = h.Id " +
                 $"RIGHT OUTER JOIN Date d on dh.DateId = d.Id ) " +
                 $"d pivot ( COUNT(Name) for Name in ({ habitNames }) ) piv " +
-                $"WHERE Date >= GETDATE() + @offset - @amountOfRecords / 2 - 6) as tmp";
+                $"WHERE Date >= GETDATE() + @offset - @numberOfDates + @numberOfDatesFromCurrent) as tmp";
 
             SqlDataAdapter dataAdapter = new SqlDataAdapter();
             DataTable dataTable = new DataTable();
@@ -44,7 +44,8 @@ namespace HabitTracker.Library.DataAccess
                 sqlConn.Open();
                 SqlCommand sqlCommand = new SqlCommand(query, sqlConn);
                 sqlCommand.Parameters.AddWithValue("@offset", offset);
-                sqlCommand.Parameters.AddWithValue("@amountOfRecords", amountOfRecordsShown);
+                sqlCommand.Parameters.AddWithValue("@numberOfDates", numberOfDates);
+                sqlCommand.Parameters.AddWithValue("@numberOfDatesFromCurrent", numberOfDatesFromCurrent);
                 dataAdapter.SelectCommand = sqlCommand;
                 dataAdapter.Fill(dataTable);
                 return dataTable;
