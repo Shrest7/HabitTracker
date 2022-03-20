@@ -14,15 +14,16 @@ using System.Globalization;
 using HabitTracker.Library.DataAccess;
 using HabitTracker.Library.Enums;
 using HabitTracker.Library.Models.db;
+using System.Runtime.InteropServices;
 
 namespace HabitTracker
 {
     public partial class HabitTrackerBaseForm : Form
     {
-        private SqlAccess _dbAccess = new SqlAccess();
-        private ProgressForm _progressForm;
+        private readonly SqlAccess _dbAccess = new SqlAccess();
         private AddUpdateHabitForm _addUpdateHabitFormInst;
 
+        private ProgressForm _progressFormInst;
         public ProgressForm GetProgressForm
         {
             get
@@ -30,12 +31,10 @@ namespace HabitTracker
                 Seeder.Seed();
                 ReloadListBox();
 
-                if (_progressForm == null || _progressForm.IsDisposed)
-                {
-                    _progressForm = new ProgressForm();
-                }
+                if (_progressFormInst == null || _progressFormInst.IsDisposed)
+                    _progressFormInst = new ProgressForm();
 
-                return _progressForm;
+                return _progressFormInst;
             }
         }
 
@@ -68,15 +67,27 @@ namespace HabitTracker
 
         private void BtnAddHabit_Click(object sender, EventArgs e)
         {
-            _addUpdateHabitFormInst = GetAddHabitForm(null, null, null,
-                AddUpdateHabitOperation.Add);
-            _addUpdateHabitFormInst.Show();
+            if(_addUpdateHabitFormInst == null || _addUpdateHabitFormInst.IsDisposed)
+                _addUpdateHabitFormInst = GetAddHabitForm(null, null, null,
+                    AddUpdateHabitOperation.Add);
+
+            if(!_addUpdateHabitFormInst.Visible)
+                _addUpdateHabitFormInst.Show();
+
+            _addUpdateHabitFormInst.BringToFront();
+            _addUpdateHabitFormInst.WindowState = FormWindowState.Normal;
         }
 
         private void BtnCheckProgress_Click(object sender, EventArgs e)
         {
-            _progressForm = GetProgressForm;
-            _progressForm.Show();
+            if(_progressFormInst == null || _progressFormInst.IsDisposed)
+                _progressFormInst = GetProgressForm;
+
+            if (!_progressFormInst.Visible)
+                _progressFormInst.Show();
+
+            _progressFormInst.BringToFront();
+            _progressFormInst.WindowState = FormWindowState.Normal;
         }
 
         private void HabitTrackerBaseForm_Load(object sender, EventArgs e)
@@ -91,7 +102,6 @@ namespace HabitTracker
 
             DataTable tableWithHabitNames = new DataTable();
             _dbAccess.FillTableWithHabitNames(tableWithHabitNames);
-            _dbAccess = new SqlAccess(); // TO DO: Change that
             namesListBox.DataSource = tableWithHabitNames;
             namesListBox.DisplayMember = "Name";
             namesListBox.ValueMember = "Id";
@@ -100,6 +110,9 @@ namespace HabitTracker
                 namesListBox.Items.Count <= oldIndex ?
                 oldIndex - 1 :
                 oldIndex;
+
+            if(_progressFormInst != null) 
+                _progressFormInst.FillDGV(_progressFormInst.UserOffset);
         }
 
         private void NamesListBox_SelectedIndexChanged(object sender, EventArgs e)
@@ -120,7 +133,12 @@ namespace HabitTracker
             if (dr == DialogResult.No)
                 return;
 
-            _dbAccess.RemoveHabit((int)namesListBox.SelectedValue);
+            if(namesListBox.SelectedValue != null)
+                _dbAccess.RemoveHabit((int)namesListBox.SelectedValue);
+
+            if (namesListBox.Items.Count == 1)
+                Seeder.Seed();
+
             ReloadListBox();
         }
 

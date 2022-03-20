@@ -3,10 +3,6 @@ using System.Configuration;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 
-// Code scaffolded by EF Core assumes nullable reference types (NRTs) are not used or disabled.
-// If you have enabled NRTs for your project, then un-comment the following line:
-// #nullable disable
-
 namespace HabitTracker.Library.Models.db
 {
     public partial class HabitTrackerDBEFCoreContext : DbContext
@@ -28,7 +24,7 @@ namespace HabitTracker.Library.Models.db
         {
             if (!optionsBuilder.IsConfigured)
             {
-                optionsBuilder.UseSqlServer(ConfigurationManager.ConnectionStrings["ConnString"].ConnectionString);
+                optionsBuilder.UseSqlServer(Properties.Settings.Default.Database1ConnectionString);
             }
         }
 

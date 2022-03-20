@@ -61,6 +61,7 @@ namespace HabitTracker
             {
                 case CreateUpdateHabitMessage.OK:
                     _baseForm.ReloadListBox();
+                    Close();
                     break;
                 case CreateUpdateHabitMessage.NameAlreadyExists:
                     MessageBox.Show($"Habit with name \'{nameTxt.Text}\' already exists.");

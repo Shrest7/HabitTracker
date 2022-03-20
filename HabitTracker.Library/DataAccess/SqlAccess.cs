@@ -20,8 +20,7 @@ namespace HabitTracker.Library.DataAccess
         private readonly HabitTrackerDBEFCoreContext _dbContext =
             new HabitTrackerDBEFCoreContext();
         private readonly string ConnectionString =
-            ConfigurationManager.ConnectionStrings["ConnString"]
-            .ConnectionString;
+            Properties.Settings.Default.Database1ConnectionString;
         private readonly int maxHabitNameLength = int.Parse(ConfigurationManager
             .AppSettings["MaxNameLength"]);
         private readonly int maxDescriptionReasonLength = int.Parse(ConfigurationManager
@@ -36,7 +35,7 @@ namespace HabitTracker.Library.DataAccess
                 $"FROM ( SELECT Name, Date FROM DateHabit dh RIGHT OUTER JOIN Habit h on dh.HabitId = h.Id " +
                 $"RIGHT OUTER JOIN Date d on dh.DateId = d.Id ) " +
                 $"d pivot ( COUNT(Name) for Name in ({ habitNames }) ) piv " +
-                $"WHERE Date >= GETDATE() + @offset - @amountOfRecords / 2) as tmp";
+                $"WHERE Date >= GETDATE() + @offset - @amountOfRecords / 2 - 6) as tmp";
 
             SqlDataAdapter dataAdapter = new SqlDataAdapter();
             DataTable dataTable = new DataTable();
@@ -140,9 +139,9 @@ namespace HabitTracker.Library.DataAccess
         }
 
         public Habit GetHabitById(int id)
-            => _dbContext.Habit.SingleOrDefault(x => x.Id == id);
+            => _dbContext.Habit.AsNoTracking().SingleOrDefault(x => x.Id == id);
         public Habit GetHabitByName(string name)
-            => _dbContext.Habit.SingleOrDefault(x => x.Name == name);
+            => _dbContext.Habit.AsNoTracking().SingleOrDefault(x => x.Name == name);
 
         public void RemoveHabit(int id)
         {
@@ -155,8 +154,10 @@ namespace HabitTracker.Library.DataAccess
 
         public CreateUpdateHabitMessage UpdateHabit(string name,
             string description, string reason)
-        { 
-           
+        {
+            description = description.Trim();
+            reason = reason.Trim();
+
             if (description.Length > maxDescriptionReasonLength)
                 return CreateUpdateHabitMessage.DescriptionTooLong;
 
@@ -176,6 +177,10 @@ namespace HabitTracker.Library.DataAccess
         public CreateUpdateHabitMessage CreateHabit(string name,
             string description, string reason)
         {
+            name = name.Trim();
+            description = description.Trim();
+            reason = reason.Trim();
+
             if (name.Length > maxHabitNameLength)
                 return CreateUpdateHabitMessage.NameTooLong;
 

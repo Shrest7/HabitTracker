@@ -40,16 +40,17 @@
             // nameTxt
             // 
             this.nameTxt.BackColor = System.Drawing.Color.White;
+            this.nameTxt.Font = new System.Drawing.Font("Microsoft Sans Serif", 15.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
             this.nameTxt.Location = new System.Drawing.Point(12, 37);
             this.nameTxt.Name = "nameTxt";
-            this.nameTxt.Size = new System.Drawing.Size(207, 20);
+            this.nameTxt.Size = new System.Drawing.Size(439, 31);
             this.nameTxt.TabIndex = 0;
             // 
             // label1
             // 
             this.label1.AutoSize = true;
             this.label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 15.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
-            this.label1.Location = new System.Drawing.Point(82, 9);
+            this.label1.Location = new System.Drawing.Point(195, 9);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(68, 25);
             this.label1.TabIndex = 1;
@@ -57,17 +58,18 @@
             // 
             // descriptionTxt
             // 
-            this.descriptionTxt.Location = new System.Drawing.Point(12, 88);
+            this.descriptionTxt.Font = new System.Drawing.Font("Microsoft Sans Serif", 15.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
+            this.descriptionTxt.Location = new System.Drawing.Point(12, 98);
             this.descriptionTxt.Multiline = true;
             this.descriptionTxt.Name = "descriptionTxt";
-            this.descriptionTxt.Size = new System.Drawing.Size(207, 98);
+            this.descriptionTxt.Size = new System.Drawing.Size(439, 107);
             this.descriptionTxt.TabIndex = 2;
             // 
             // label2
             // 
             this.label2.AutoSize = true;
             this.label2.Font = new System.Drawing.Font("Microsoft Sans Serif", 15.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
-            this.label2.Location = new System.Drawing.Point(55, 60);
+            this.label2.Location = new System.Drawing.Point(169, 71);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(120, 25);
             this.label2.TabIndex = 3;
@@ -75,10 +77,10 @@
             // 
             // btnConfirmHabit
             // 
-            this.btnConfirmHabit.Font = new System.Drawing.Font("Microsoft Sans Serif", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
-            this.btnConfirmHabit.Location = new System.Drawing.Point(12, 321);
+            this.btnConfirmHabit.Font = new System.Drawing.Font("Microsoft Sans Serif", 15.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
+            this.btnConfirmHabit.Location = new System.Drawing.Point(115, 362);
             this.btnConfirmHabit.Name = "btnConfirmHabit";
-            this.btnConfirmHabit.Size = new System.Drawing.Size(207, 51);
+            this.btnConfirmHabit.Size = new System.Drawing.Size(223, 51);
             this.btnConfirmHabit.TabIndex = 4;
             this.btnConfirmHabit.Text = "Add!";
             this.btnConfirmHabit.UseVisualStyleBackColor = true;
@@ -88,7 +90,7 @@
             // 
             this.lblReason.AutoSize = true;
             this.lblReason.Font = new System.Drawing.Font("Microsoft Sans Serif", 15.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
-            this.lblReason.Location = new System.Drawing.Point(73, 189);
+            this.lblReason.Location = new System.Drawing.Point(184, 221);
             this.lblReason.Name = "lblReason";
             this.lblReason.Size = new System.Drawing.Size(86, 25);
             this.lblReason.TabIndex = 6;
@@ -96,17 +98,18 @@
             // 
             // reasonTxt
             // 
-            this.reasonTxt.Location = new System.Drawing.Point(12, 217);
+            this.reasonTxt.Font = new System.Drawing.Font("Microsoft Sans Serif", 15.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
+            this.reasonTxt.Location = new System.Drawing.Point(12, 249);
             this.reasonTxt.Multiline = true;
             this.reasonTxt.Name = "reasonTxt";
-            this.reasonTxt.Size = new System.Drawing.Size(207, 98);
+            this.reasonTxt.Size = new System.Drawing.Size(439, 107);
             this.reasonTxt.TabIndex = 5;
             // 
             // AddUpdateHabitForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(231, 380);
+            this.ClientSize = new System.Drawing.Size(464, 420);
             this.Controls.Add(this.lblReason);
             this.Controls.Add(this.reasonTxt);
             this.Controls.Add(this.btnConfirmHabit);

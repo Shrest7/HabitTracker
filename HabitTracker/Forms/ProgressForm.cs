@@ -15,10 +15,11 @@ namespace HabitTracker
 {
     public partial class ProgressForm : Form
     {
-        private readonly string _colorPath;
         private Color _markedCellColor;
+        private readonly string _colorPath;
         private const int _defaultOffset = 0;
         private const int _amountOfRecordsShown = 25;
+        private const int _columnWidth = 160;
         private readonly SqlAccess _dbAccess = new SqlAccess();
         private readonly int _maxOffsetPast;
         private readonly DateTime _currentDate = DateTime.Now.Date;
@@ -52,32 +53,29 @@ namespace HabitTracker
         {
             InitializeComponent();
 
-            _colorPath = Directory.GetParent(Environment.CurrentDirectory.ToString())
-                .Parent.Parent.FullName;
-            _colorPath = Path.Combine(_colorPath, @"HabitTracker.Library\DataAccess\CellColor.txt");
-
+            _colorPath = GenerateFilePathForColor();
             _markedCellColor = GetColorFromFile();
+
             _earliestDateInDB = _dbAccess.GetEarliestDateInDB().Date.GetValueOrDefault();
-            _maxOffsetPast = (int)(_currentDate - _earliestDateInDB).TotalDays - 7;
-            dgv.ClearSelection();
-            dgv.Dock = DockStyle.Bottom;
-            dgv.Height = Height - 105;
-            dgv.AutoGenerateColumns = true;
-            dgv.RowHeadersVisible = false;
-            dgv.AllowUserToResizeColumns = false;
-            dgv.VisibleChanged += Dgv_VisibleChanged;
-            dgv.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.ColumnHeader;
-            dgv.RowsDefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
-            dgv.ColumnHeadersDefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
-            dgv.ShowCellToolTips = false;
-            dgv.BackgroundColor = SystemColors.Control;
-            dgv.ScrollBars = ScrollBars.None;
+            _maxOffsetPast = (int)(_currentDate - _earliestDateInDB).TotalDays - 13;
+
+            dgv.Height = this.Height - 108;
             dgv.MouseWheel += Dgv_MouseWheel;
             FillDGV(UserOffset);
         }
 
+        private string GenerateFilePathForColor()
+        {
+            var solutionPath = Directory.GetParent(Environment.CurrentDirectory.ToString())
+                .Parent.Parent.FullName;
+            return Path.Combine(solutionPath, @"HabitTracker.Library\DataAccess\CellColor.txt");
+        }
+
         public void FillDGV(int offset)
         {
+            if (!_dbAccess.CheckIfAnyHabitExists())
+                Seeder.Seed();
+
             List<string> listOfHabits = _dbAccess.GetHabitNames();
 
             for (int i = 0; i < listOfHabits.Count; i++)
@@ -87,63 +85,31 @@ namespace HabitTracker
 
             var habits = string.Join(", ", listOfHabits.ToArray());
 
+
             BindingSource bindingSource = new BindingSource()
             {
                 DataSource = _dbAccess.GetDataForDGV(habits, offset, _amountOfRecordsShown)
             };
             dgv.DataSource = bindingSource;
+            AdjustDGVColumns();
             dgv.ClearSelection();
         }
 
-        private void Dgv_VisibleChanged(object sender, EventArgs e)
+        private void AdjustDGVColumns()
         {
-            var habit = _dbAccess.GetHabitWithTheLongestName();
-            int widthOfTheWidestHeader = GetWidthOfWidestColumn(habit.Name);
-            AdjustAllColumns(widthOfTheWidestHeader);
-        }
-
-        private int GetWidthOfWidestColumn(string nameOfTheLongestHabit)
-        {
-            var column = dgv.Columns
-                .Cast<DataGridViewColumn>()
-                .FirstOrDefault(c => c.HeaderText == nameOfTheLongestHabit);
-
-            return column.Width;
-        }
-
-        private void AdjustAllColumns(int widthOfTheWidestColumn)
-        {
-            int maxWidth = 160;
-            int minWidth = 100;
-            int finalWidth;
-
-            if (widthOfTheWidestColumn < minWidth)
-            {
-                finalWidth = minWidth;
-            }
-            else if (widthOfTheWidestColumn > maxWidth)
-            {
-                finalWidth = maxWidth;
-            }
-            else
-            {
-                finalWidth = widthOfTheWidestColumn;
-            }
-
-            dgv.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.None;
             foreach (DataGridViewColumn column in dgv.Columns)
             {
-                column.Width = finalWidth;
+                column.Width = _columnWidth;
             }
         }
 
         private void Dgv_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)
         {
-            int todaysRowFound = 0;
+            bool todaysRowFound = false;
             foreach (DataGridViewRow Myrow in dgv.Rows)
             {
                 if (DateTime.Compare((DateTime)Myrow.Cells[0].Value, DateTime.Today.Date) == 0)
-                    todaysRowFound = 1;
+                    todaysRowFound = true;
 
                 for (int i = 1; i < Myrow.Cells.Count; i++)
                 {
@@ -153,13 +119,13 @@ namespace HabitTracker
                         {
                             Myrow.Cells[i].Style.BackColor = _markedCellColor;
                         }
-                        else if(todaysRowFound == 1)
+                        else if(todaysRowFound)
                         {
                             Myrow.Cells[i].Style.BackColor = Color.LightGray;
                         }
                     }
                 }
-                todaysRowFound = 0;
+                todaysRowFound = false;
             }
             dgv.ClearSelection();
             CorrectWindowSize();
@@ -168,11 +134,11 @@ namespace HabitTracker
         private void CorrectWindowSize()
         {
             int width, height;
-            (width, height) = CountGridWidthAndHeight(dgv);
+            (width, height) = CalculateGridWidthAndHeight(dgv);
             ClientSize = new Size(width, ClientSize.Height);
         }
 
-        private (int, int) CountGridWidthAndHeight(DataGridView dgv)
+        private (int, int) CalculateGridWidthAndHeight(DataGridView dgv)
         {
             int width = dgv.Columns
                 .Cast<DataGridViewColumn>()
