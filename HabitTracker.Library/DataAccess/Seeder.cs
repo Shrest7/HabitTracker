@@ -58,7 +58,10 @@ namespace HabitTracker
                     }
                 };
 
-                _dbAccess.SeedBaseHabits(habits);
+                foreach (var habit in habits)
+                {
+                    _dbAccess.CreateHabit(habit.Name, habit.Description, habit.Reason);
+                }
             }
         }
     }

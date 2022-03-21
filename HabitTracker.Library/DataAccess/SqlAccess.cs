@@ -99,21 +99,12 @@ namespace HabitTracker.Library.DataAccess
             return (streakLength, date.AddDays(1));
         }
 
-        public void RemoveMarkOfHabitCompletion(int dateId, int habitId)
+        public void HandleMarkOfHabitCompletion(int dateId, int habitId)
         {
-            DateHabit finishedHabit = _dbContext.DateHabit
-                .SingleOrDefault(x => x.HabitId == habitId && x.DateId == dateId);
-            _dbContext.DateHabit.Remove(finishedHabit);
-            _dbContext.SaveChanges();
-        }
+            var finishedHabit = _dbContext.DateHabit
+                .SingleOrDefault(x => x.DateId == dateId && x.HabitId == habitId);
 
-        public void MarkHabitCompletion(int dateId, int habitId)
-        {
-            bool alreadyMarked = Convert.ToBoolean(_dbContext.DateHabit
-                .Where(x => x.DateId == dateId && x.HabitId == habitId)
-                .Count());
-
-            if (!alreadyMarked)
+            if (finishedHabit == null)
             {
                 DateHabit dateHabit = new DateHabit()
                 {
@@ -121,8 +112,13 @@ namespace HabitTracker.Library.DataAccess
                     HabitId = habitId
                 };
                 _dbContext.DateHabit.Add(dateHabit);
-                _dbContext.SaveChanges();
             }
+            else
+            {
+                _dbContext.DateHabit.Remove(finishedHabit);
+            }
+
+            _dbContext.SaveChanges();
         }
 
         public void GenerateDates(DateTime startDate, DateTime endDate)
@@ -139,8 +135,6 @@ namespace HabitTracker.Library.DataAccess
             _dbContext.SaveChanges();
         }
 
-        public Habit GetHabitById(int id)
-            => _dbContext.Habit.AsNoTracking().SingleOrDefault(x => x.Id == id);
         public Habit GetHabitByName(string name)
             => _dbContext.Habit.AsNoTracking().SingleOrDefault(x => x.Name == name);
 
@@ -213,11 +207,5 @@ namespace HabitTracker.Library.DataAccess
 
         public bool CheckIfAnyDateExists()
             => _dbContext.Date.Any();
-
-        public void SeedBaseHabits(List<Habit> habits)
-        {
-            _dbContext.Habit.AddRange(habits);
-            _dbContext.SaveChanges();
-        }
     }
 }

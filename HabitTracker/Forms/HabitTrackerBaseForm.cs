@@ -23,14 +23,11 @@ namespace HabitTracker
         private readonly SqlAccess _dbAccess = new SqlAccess();
         private AddUpdateHabitForm _addUpdateHabitFormInst;
 
-        private ProgressForm _progressFormInst;
-        public ProgressForm GetProgressForm
+        private static ProgressForm _progressFormInst;
+        public static ProgressForm GetProgressForm
         {
             get
             {
-                Seeder.Seed();
-                ReloadListBox();
-
                 if (_progressFormInst == null || _progressFormInst.IsDisposed)
                     _progressFormInst = new ProgressForm();
 
@@ -50,6 +47,13 @@ namespace HabitTracker
             return _addUpdateHabitFormInst;
         }
 
+        public HabitTrackerBaseForm()
+        {
+            InitializeComponent();
+            Seeder.Seed();
+            FillDatesIfNeeded();
+        }
+
         public void FillDatesIfNeeded()
         {
             DateDBTable dbCell = _dbAccess.GetLatestDateInDB();
@@ -57,12 +61,6 @@ namespace HabitTracker
 
             if ((DateTime.UtcNow - latestDate).TotalDays < 30)
                 _dbAccess.GenerateDates(latestDate, DateTime.UtcNow.AddDays(14));
-        }
-
-        public HabitTrackerBaseForm()
-        {
-            InitializeComponent();
-            Seeder.Seed();
         }
 
         private void BtnAddHabit_Click(object sender, EventArgs e)
@@ -155,12 +153,13 @@ namespace HabitTracker
                 _addUpdateHabitFormInst.nameTxt.Enabled = false;
                 _addUpdateHabitFormInst.Text = "Update Habit";
                 _addUpdateHabitFormInst.btnConfirmHabit.Text = "Update!";
+            }
+
+            if (!_addUpdateHabitFormInst.Visible)
                 _addUpdateHabitFormInst.Show();
-            }
-            else
-            {
-                MessageBox.Show("Please close form used to add habit first.");
-            }
+
+            _addUpdateHabitFormInst.BringToFront();
+            _addUpdateHabitFormInst.WindowState = FormWindowState.Normal;
         }
     }
 }

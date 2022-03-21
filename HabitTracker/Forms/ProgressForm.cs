@@ -16,15 +16,11 @@ namespace HabitTracker
     public partial class ProgressForm : Form
     {
         private Color _markedCellColor;
-        private readonly string _colorPath;
-        private const int _defaultOffset = 0;
-        private const int _numberOfDates = 25;
-        private const int _numberOfDatesForward = 5;
-        private const int _columnWidth = 160;
-        private readonly SqlAccess _dbAccess = new SqlAccess();
+        private const int _numberOfDatesShown = 31;
+        private const int _numberOfDatesForwardShown = 7;
+        private readonly string _colorFilePath;
         private readonly int _maxOffsetPast;
-        private readonly DateTime _currentDate = DateTime.Now.Date;
-        private readonly DateTime _earliestDateInDB;
+        private readonly SqlAccess _dbAccess = new SqlAccess();
 
         private int _userOffset;
         public int UserOffset
@@ -54,16 +50,23 @@ namespace HabitTracker
         {
             InitializeComponent();
 
-            _colorPath = GenerateFilePathForColor();
+            _colorFilePath = GetColorFilePath();
             _markedCellColor = GetColorFromFile();
+            _maxOffsetPast = CalculateMaxOffsetPast();
 
-            _earliestDateInDB = _dbAccess.GetEarliestDateInDB().Date.GetValueOrDefault();
-            _maxOffsetPast = (int)((_currentDate - _earliestDateInDB).TotalDays - 13) * (-1);
-
-            dataGridView.MouseWheel += Dgv_MouseWheel;
+            _dataGridView.MouseWheel += Dgv_MouseWheel;
         }
 
-        private string GenerateFilePathForColor()
+        private int CalculateMaxOffsetPast()
+        {
+            DateTime earliestDateInDB = _dbAccess.GetEarliestDateInDB().Date.GetValueOrDefault();
+            DateTime currentDate = DateTime.Now;
+
+            return (int)((currentDate - earliestDateInDB).TotalDays -
+                (_numberOfDatesShown - _numberOfDatesForwardShown - 1)) * (-1);
+        }
+
+        private string GetColorFilePath()
         {
             var solutionPath = Directory.GetParent(Environment.CurrentDirectory.ToString())
                 .Parent.Parent.FullName;
@@ -72,60 +75,56 @@ namespace HabitTracker
 
         public void FillDataGridView(int offset)
         {
-            if (!_dbAccess.CheckIfAnyHabitExists())
-                Seeder.Seed();
+            List<string> habitNames = _dbAccess.GetHabitNames();
 
-            List<string> listOfHabits = _dbAccess.GetHabitNames();
-
-            for (int i = 0; i < listOfHabits.Count; i++)
+            for (int i = 0; i < habitNames.Count; i++)
             {
-                listOfHabits[i] = $"[{listOfHabits[i]}]";
+                habitNames[i] = $"[{habitNames[i]}]";
             }
 
-            var habits = string.Join(", ", listOfHabits.ToArray());
-
+            var habits = string.Join(", ", habitNames.ToArray());
 
             BindingSource bindingSource = new BindingSource()
             {
-                DataSource = _dbAccess.GetDataForDGV(habits, offset, _numberOfDates, _numberOfDatesForward)
+                DataSource = _dbAccess.GetDataForDGV(habits, offset, _numberOfDatesShown, _numberOfDatesForwardShown)
             };
-            dataGridView.DataSource = bindingSource;
-            dataGridView.ClearSelection();
+            _dataGridView.DataSource = bindingSource;
+            _dataGridView.ClearSelection();
             AdjustFormAndDGV();
         }
 
         private void AdjustFormAndDGV()
         {
-            foreach (DataGridViewColumn column in dataGridView.Columns)
+            const int columnWidth = 160;
+
+            foreach (DataGridViewColumn column in _dataGridView.Columns)
             {
-                column.Width = _columnWidth;
+                column.Width = columnWidth;
             }
 
             Rectangle screenRectangle = this.RectangleToScreen(this.ClientRectangle);
 
             int titleHeight = screenRectangle.Top - this.Top;
+            int dgvHeight = _dataGridView.ColumnHeadersHeight +
+                _dataGridView.Rows.Cast<DataGridViewRow>().Sum(x => x.Height);
+            int dgvWidth = _dataGridView.Columns.Cast<DataGridViewColumn>().Sum(x => x.Width);
 
-            int dgvHeight = dataGridView.ColumnHeadersHeight +
-                dataGridView.Rows.Cast<DataGridViewRow>().Sum(x => x.Height);
-
-            int dgvWidth = dataGridView.Columns.Cast<DataGridViewColumn>().Sum(x => x.Width);
-
-            if (dgvHeight == dataGridView.Size.Height && dgvWidth == dataGridView.Size.Width)
+            if (dgvHeight == _dataGridView.Size.Height && dgvWidth == _dataGridView.Size.Width)
                 return;
 
-            dataGridView.Size = new Size(dgvWidth, dgvHeight);
+            _dataGridView.Size = new Size(dgvWidth, dgvHeight);
 
-            this.Size = new Size(dgvWidth, dgvHeight + dataGridView.Location.Y + titleHeight + 8);
+            this.Size = new Size(dgvWidth, dgvHeight + _dataGridView.Location.Y + titleHeight + 8);
             this.ClientSize = new Size(this.Width, ClientSize.Height);
         }
 
         private void Dgv_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)
         {
-            bool todaysRowFound = false;
-            foreach (DataGridViewRow Myrow in dataGridView.Rows)
+            bool todaysRow = false;
+            foreach (DataGridViewRow Myrow in _dataGridView.Rows)
             {
                 if (DateTime.Compare((DateTime)Myrow.Cells[0].Value, DateTime.Today.Date) == 0)
-                    todaysRowFound = true;
+                    todaysRow = true;
 
                 for (int i = 1; i < Myrow.Cells.Count; i++)
                 {
@@ -135,15 +134,15 @@ namespace HabitTracker
                         {
                             Myrow.Cells[i].Style.BackColor = _markedCellColor;
                         }
-                        else if(todaysRowFound)
+                        else if(todaysRow)
                         {
                             Myrow.Cells[i].Style.BackColor = Color.LightGray;
                         }
                     }
                 }
-                todaysRowFound = false;
+                todaysRow = false;
             }
-            dataGridView.ClearSelection();
+            _dataGridView.ClearSelection();
         }
 
         // Hides 0's and 1's from ProgressForm DataGridView's cells
@@ -186,20 +185,16 @@ namespace HabitTracker
             if (e.RowIndex == -1 || e.ColumnIndex == 0)
                 return;
 
-            DateTime date = (DateTime) dataGridView.Rows[e.RowIndex].Cells[0].Value;
+            DateTime date = (DateTime) _dataGridView.Rows[e.RowIndex].Cells[0].Value;
             int dateId = _dbAccess.GetDate(date).Id;
-            string habitName = dataGridView.Columns[e.ColumnIndex].HeaderText;
+            string habitName = _dataGridView.Columns[e.ColumnIndex].HeaderText;
             int habitId = _dbAccess.GetHabitByName(habitName).Id;
-            Color backColor = dataGridView.Rows[e.RowIndex].Cells[e.ColumnIndex].Style.BackColor;
 
-            if (backColor == _markedCellColor)
-                 _dbAccess.RemoveMarkOfHabitCompletion(dateId, habitId);
-            else
-                _dbAccess.MarkHabitCompletion(dateId, habitId);
+            _dbAccess.HandleMarkOfHabitCompletion(dateId, habitId);
 
-            int scrollingRowIndex = dataGridView.FirstDisplayedScrollingRowIndex;
+            int scrollingRowIndex = _dataGridView.FirstDisplayedScrollingRowIndex;
             FillDataGridView(UserOffset);
-            dataGridView.FirstDisplayedScrollingRowIndex = scrollingRowIndex;
+            _dataGridView.FirstDisplayedScrollingRowIndex = scrollingRowIndex;
         }
 
         private void Dgv_ColumnAdded(object sender, DataGridViewColumnEventArgs e)
@@ -234,8 +229,7 @@ namespace HabitTracker
 
         private void BtnGoBackToCurrentDate_Click(object sender, EventArgs e)
         {
-            FillDataGridView(_defaultOffset);
-            UserOffset = _defaultOffset;
+            FillDataGridView(UserOffset = 0);
         }
 
         private void BtnChangeCellColor_Click(object sender, EventArgs e)
@@ -243,15 +237,15 @@ namespace HabitTracker
             ColorDialog colorDialog = new ColorDialog();
             colorDialog.ShowDialog();
             _markedCellColor = colorDialog.Color;
-            File.WriteAllText(_colorPath, string.Empty);
-            File.WriteAllText(_colorPath, _markedCellColor.ToArgb().ToString());
+            File.WriteAllText(_colorFilePath, string.Empty);
+            File.WriteAllText(_colorFilePath, _markedCellColor.ToArgb().ToString());
 
             FillDataGridView(UserOffset);
         }
 
         private Color GetColorFromFile()
         {
-            int argb = Convert.ToInt32(File.ReadAllText(_colorPath));
+            int argb = Convert.ToInt32(File.ReadAllText(_colorFilePath));
             return Color.FromArgb(argb);
         }
 

@@ -21,13 +21,11 @@ namespace HabitTracker
         private readonly SqlAccess _dbAccess = new SqlAccess();
         private readonly HabitTrackerBaseForm _baseForm;
         private readonly AddUpdateHabitOperation _operation;
-        private readonly string _currentName;
 
         public AddUpdateHabitForm(string name, string description, string reason,
             HabitTrackerBaseForm baseForm, AddUpdateHabitOperation operation)
         {
             InitializeComponent();
-            _currentName = name;
             _baseForm = baseForm;
             _operation = operation;
             nameTxt.Text = name;
