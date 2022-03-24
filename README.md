@@ -1,7 +1,7 @@
 # HabitTracker
 HabitTracker is a Windows Forms app designed to keep track of your habits.
 
-<img src="https://user-images.githubusercontent.com/31261595/159293978-feafed7c-a761-4b3b-9dc3-a5220e976243.png" width="602" height="608"/>                         <img src="https://user-images.githubusercontent.com/31261595/159293317-523a9168-8d54-44c2-991f-e6ee8bfaf7af.png" width="347" height="416"/> 
+ <img src="https://user-images.githubusercontent.com/31261595/159293978-feafed7c-a761-4b3b-9dc3-a5220e976243.png" width="602" height="608"/>     
 
 ## Technologies used
 - .NET Framework 4.7.2. 
