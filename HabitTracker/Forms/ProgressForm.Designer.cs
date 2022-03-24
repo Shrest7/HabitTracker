@@ -38,7 +38,7 @@
             ((System.ComponentModel.ISupportInitialize)(this._dataGridView)).BeginInit();
             this.SuspendLayout();
             // 
-            // dataGridView
+            // _dataGridView
             // 
             this._dataGridView.AllowUserToAddRows = false;
             this._dataGridView.AllowUserToDeleteRows = false;
@@ -66,7 +66,7 @@
             this._dataGridView.DefaultCellStyle = dataGridViewCellStyle2;
             this._dataGridView.EnableHeadersVisualStyles = false;
             this._dataGridView.Location = new System.Drawing.Point(0, 72);
-            this._dataGridView.Name = "dataGridView";
+            this._dataGridView.Name = "_dataGridView";
             this._dataGridView.ReadOnly = true;
             this._dataGridView.RowHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.Single;
             this._dataGridView.RowHeadersVisible = false;

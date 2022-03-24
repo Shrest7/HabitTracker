@@ -162,6 +162,7 @@
             this.Controls.Add(this.label1);
             this.Controls.Add(this.namesListBox);
             this.Controls.Add(this.btnAddHabit);
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.Fixed3D;
             this.MaximizeBox = false;
             this.Name = "HabitTrackerBaseForm";
             this.Text = "HabitTracker";

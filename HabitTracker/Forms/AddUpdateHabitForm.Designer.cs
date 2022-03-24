@@ -41,7 +41,7 @@
             // 
             this.nameTxt.BackColor = System.Drawing.Color.White;
             this.nameTxt.Font = new System.Drawing.Font("Microsoft Sans Serif", 15.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
-            this.nameTxt.Location = new System.Drawing.Point(12, 37);
+            this.nameTxt.Location = new System.Drawing.Point(12, 43);
             this.nameTxt.Name = "nameTxt";
             this.nameTxt.Size = new System.Drawing.Size(439, 31);
             this.nameTxt.TabIndex = 0;
@@ -50,7 +50,7 @@
             // 
             this.label1.AutoSize = true;
             this.label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 15.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
-            this.label1.Location = new System.Drawing.Point(195, 9);
+            this.label1.Location = new System.Drawing.Point(193, 15);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(68, 25);
             this.label1.TabIndex = 1;
@@ -59,7 +59,7 @@
             // descriptionTxt
             // 
             this.descriptionTxt.Font = new System.Drawing.Font("Microsoft Sans Serif", 15.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
-            this.descriptionTxt.Location = new System.Drawing.Point(12, 98);
+            this.descriptionTxt.Location = new System.Drawing.Point(13, 105);
             this.descriptionTxt.Multiline = true;
             this.descriptionTxt.Name = "descriptionTxt";
             this.descriptionTxt.Size = new System.Drawing.Size(439, 107);
@@ -69,7 +69,7 @@
             // 
             this.label2.AutoSize = true;
             this.label2.Font = new System.Drawing.Font("Microsoft Sans Serif", 15.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
-            this.label2.Location = new System.Drawing.Point(169, 71);
+            this.label2.Location = new System.Drawing.Point(167, 77);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(120, 25);
             this.label2.TabIndex = 3;
@@ -78,7 +78,7 @@
             // btnConfirmHabit
             // 
             this.btnConfirmHabit.Font = new System.Drawing.Font("Microsoft Sans Serif", 15.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
-            this.btnConfirmHabit.Location = new System.Drawing.Point(115, 362);
+            this.btnConfirmHabit.Location = new System.Drawing.Point(115, 356);
             this.btnConfirmHabit.Name = "btnConfirmHabit";
             this.btnConfirmHabit.Size = new System.Drawing.Size(223, 51);
             this.btnConfirmHabit.TabIndex = 4;
@@ -90,7 +90,7 @@
             // 
             this.lblReason.AutoSize = true;
             this.lblReason.Font = new System.Drawing.Font("Microsoft Sans Serif", 15.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
-            this.lblReason.Location = new System.Drawing.Point(184, 221);
+            this.lblReason.Location = new System.Drawing.Point(184, 215);
             this.lblReason.Name = "lblReason";
             this.lblReason.Size = new System.Drawing.Size(86, 25);
             this.lblReason.TabIndex = 6;
@@ -99,7 +99,7 @@
             // reasonTxt
             // 
             this.reasonTxt.Font = new System.Drawing.Font("Microsoft Sans Serif", 15.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
-            this.reasonTxt.Location = new System.Drawing.Point(12, 249);
+            this.reasonTxt.Location = new System.Drawing.Point(12, 243);
             this.reasonTxt.Multiline = true;
             this.reasonTxt.Name = "reasonTxt";
             this.reasonTxt.Size = new System.Drawing.Size(439, 107);
@@ -118,6 +118,7 @@
             this.Controls.Add(this.label1);
             this.Controls.Add(this.nameTxt);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.Fixed3D;
+            this.MaximizeBox = false;
             this.Name = "AddUpdateHabitForm";
             this.Text = "Add Habit";
             this.ResumeLayout(false);
