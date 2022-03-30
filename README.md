@@ -7,12 +7,13 @@ HabitTracker is a Windows Forms app designed to keep track of your habits.
 - .NET Framework 4.7.2. 
 - EFCore.
 
-## Requirements & Usage
+## Requirements
 HabitTracker requires SQL Server installed (2016 or newer).
 
-
-First clone the repository, then in the Solution Explorer, right click on the solution and choose Restore NuGet Packages.
-The last step is to close and reopen the solution.
+## Usage
+- clone the repository
+- in the Solution Explorer, right click on the solution and choose Restore NuGet Packages.
+- close and reopen the solution.
 
 
 ## About
