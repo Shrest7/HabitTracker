@@ -26,6 +26,11 @@ namespace HabitTracker.Library.DataAccess
         private readonly int maxDescriptionReasonLength = int.Parse(ConfigurationManager
             .AppSettings["MaxReasonDescriptionLength"]);
 
+        public SqlAccess()
+        {
+            _dbContext.Database.EnsureCreated();
+        }
+
         public DataTable GetDataForDGV(string habitNames,
             int offset, int numberOfDates, int numberOfDatesFromCurrent)
         {
