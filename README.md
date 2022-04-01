@@ -15,6 +15,8 @@ HabitTracker requires SQL Server installed (2016 or newer).
 - in the Solution Explorer, right click on the solution and choose Restore NuGet Packages.
 - close and reopen the solution.
 
+## Features
+- ProgressForm (the one with the table) always shows the exact same number of records, regardless of column's header size.
 
 ## About
 It's my first personal project, created primarly because I wanted to, well, build new habits and track whether I'm doing well or not.
